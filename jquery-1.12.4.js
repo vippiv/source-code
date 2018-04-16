@@ -174,12 +174,14 @@ jQuery.fn = jQuery.prototype = {
 
 jQuery.extend = jQuery.fn.extend = function() {
 	var src, copyIsArray, copy, name, options, clone,
+		// 第一个参数是false的情况下，给target赋值空对象
 		target = arguments[ 0 ] || {},
 		i = 1,
 		length = arguments.length,
 		deep = false;
 
 	// Handle a deep copy situation
+	// deep赋值为true，target赋值为第二个参数，或者空对象
 	if ( typeof target === "boolean" ) {
 		deep = target;
 

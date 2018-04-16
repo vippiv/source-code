@@ -45,7 +45,47 @@ var
 		return letter.toUpperCase();
 	};
 
-/********175行开始*****/
+jQuery.fn = jQuery.prototype = {
+	// The current version of jQuery being used
+	jquery: version,
+
+	constructor: jQuery,
+
+	// Start with an empty selector
+	selector: "",
+
+	// The default length of a jQuery object is 0
+	length: 0,
+
+	toArray : function() {},
+
+	get : function(){},
+
+	pushStack : function(){},
+
+	each : function(){},
+
+	map : function(){},
+
+	slice : function(){},
+
+	first : function(){},
+
+	last : function(){},
+
+	eq : function(){},
+
+	end : function(){},
+
+	// For internal use only.
+	// Behaves like an Array's method, not like a jQuery method.
+	push: push,
+	sort: deletedIds.sort,
+	splice: deletedIds.splice
+}
+
+/********175行开始********/
+//定义扩展jQuery方法extend，extend也是一个实例方法，只不过是用静态方法指向了实例方法
 jQuery.extend = jQuery.fn.extend = function(){
 
 }
