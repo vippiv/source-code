@@ -3835,27 +3835,34 @@ function isEmptyDataObject( obj ) {
 }
 
 function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
+	//判断当前elem能否接受扩展数据
 	if ( !acceptData( elem ) ) {
 		return;
 	}
 
 	var ret, thisCache,
+		//一个随机数
 		internalKey = jQuery.expando,
 
 		// We have to handle DOM nodes and JS objects differently because IE6-7
 		// can't GC object references properly across the DOM-JS boundary
+		// 处理IE6-7的情况：因为IE6-7无法正确的区分DOM对象和JS对象，因此需要处理DOM节点和JS对象之间的不同
+		// DOM对象是有nodeType的，js对象则没有
 		isNode = elem.nodeType,
 
 		// Only DOM nodes need the global jQuery cache; JS object data is
 		// attached directly to the object so GC can occur automatically
+		// 仅DOM节点需要全局jQuery cache，js对象则可以直接把数据附加在对象上，cache是一个对象
 		cache = isNode ? jQuery.cache : elem,
 
 		// Only defining an ID for JS objects if its cache already exists allows
 		// the code to shortcut on the same path as a DOM node with no cache
+
 		id = isNode ? elem[ internalKey ] : elem[ internalKey ] && internalKey;
 
 	// Avoid doing any more work than we need to when trying to get data on an
 	// object that has no data at all
+	// 当一个对象上根本没有data时就不再做其他的
 	if ( ( !id || !cache[ id ] || ( !pvt && !cache[ id ].data ) ) &&
 		data === undefined && typeof name === "string" ) {
 		return;
@@ -4856,6 +4863,7 @@ jQuery.event = {
 			elemData = jQuery._data( elem );
 
 		// Don't attach events to noData or text/comment nodes (but allow plain objects)
+		// 不允许给无数据或文本节点添加事件
 		if ( !elemData ) {
 			return;
 		}
@@ -4868,11 +4876,13 @@ jQuery.event = {
 		}
 
 		// Make sure that the handler has a unique ID, used to find/remove it later
+		// 确保handler有唯一的id，通常用于后期查找/删除这个handler，没有就添加一个
 		if ( !handler.guid ) {
 			handler.guid = jQuery.guid++;
 		}
 
 		// Init the element's event structure and main handler, if this is the first
+		// 初始化元素的事件结构和主体hanlder，elemData有events，handle，elemData是元素上的数据
 		if ( !( events = elemData.events ) ) {
 			events = elemData.events = {};
 		}
@@ -4893,9 +4903,12 @@ jQuery.event = {
 		}
 
 		// Handle multiple events separated by a space
+		// 处理由空格分离的多个事件,type是一个数组
 		types = ( types || "" ).match( rnotwhite ) || [ "" ];
+		// t代表事件个数
 		t = types.length;
 		while ( t-- ) {
+			// tmp存放匹配到的结果数组
 			tmp = rtypenamespace.exec( types[ t ] ) || [];
 			type = origType = tmp[ 1 ];
 			namespaces = ( tmp[ 2 ] || "" ).split( "." ).sort();
@@ -4906,12 +4919,15 @@ jQuery.event = {
 			}
 
 			// If event changes its type, use the special event handlers for the changed type
+			// 如果type不在jQuery.event.special中，则返回一个空对象
 			special = jQuery.event.special[ type ] || {};
 
 			// If selector defined, determine special event api type, otherwise given type
+			// 如果定义了selector，则给定special event api type，否则指定type
 			type = ( selector ? special.delegateType : special.bindType ) || type;
 
 			// Update special based on newly reset type
+			// 基于重置的type更新special
 			special = jQuery.event.special[ type ] || {};
 
 			// handleObj is passed to all event handlers
@@ -4932,6 +4948,7 @@ jQuery.event = {
 				handlers.delegateCount = 0;
 
 				// Only use addEventListener/attachEvent if the special events handler returns false
+				// 如果special event handler返回false，就只用addEventListener/attachEvent
 				if ( !special.setup ||
 					special.setup.call( elem, data, namespaces, eventHandle ) === false ) {
 
@@ -4969,18 +4986,21 @@ jQuery.event = {
 	},
 
 	// Detach an event or set of events from an element
+	// 从元素上分离事件或事件集
 	remove: function( elem, types, handler, selector, mappedTypes ) {
 		var j, handleObj, tmp,
 			origCount, t, events,
 			special, handlers, type,
 			namespaces, origType,
+			// 检查元素上是否有附加数据，有则取回
 			elemData = jQuery.hasData( elem ) && jQuery._data( elem );
-
+		// 检测elemData是否存在及elemData上是否存在events属性，存在则直接赋值给events
 		if ( !elemData || !( events = elemData.events ) ) {
 			return;
 		}
 
 		// Once for each type.namespace in types; type may be omitted
+		// types是一个事件类型数组
 		types = ( types || "" ).match( rnotwhite ) || [ "" ];
 		t = types.length;
 		while ( t-- ) {

@@ -87,7 +87,10 @@ jQuery.fn = jQuery.prototype = {
 /********175行开始********/
 //定义扩展jQuery方法extend，extend也是一个实例方法，只不过是用静态方法指向了实例方法
 jQuery.extend = jQuery.fn.extend = function(){
+	// code....
 
+	// 返回改进过的jQuery对象，target就是jQuery对象
+	return target;
 }
 
 /********244行开始*****/
@@ -181,12 +184,15 @@ jQuery.extend({
 		"object ": "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
 	},
 	hasData : function(){},
-	data : function(){},
-	removeData : function(){},
-	//仅内部使用
+	// 向指定元素添加data或者获取指定元素的数据
+	data : function( elem, name, data ){},
+	// 移除指定元素上的对象
+	removeData : function( elem, name ){},
+	// 向指定元素添加data或者获取指定元素的数据，仅内部使用
 	_data : function(ele,name,data){
 		return internalData( elem, name, data, true );
 	},
+	// 移除指定元素上的对象，仅内部使用
 	_removedata : function(ele,name){
 		return internalRemoveData( elem, name, true );
 	}
@@ -267,12 +273,12 @@ jQuery.extend({
 	getScript : function(){}
 });
 
+/*****jQuery event 4855行开始****/
 
-// jquery 事件
 jQuery.event = {
 	//空对象
 	global : {},
-
+	// jquery事件绑定接口（on，one）都转发到这里
 	add : function(ele,types,handler,data,selector){},
 	remove : function(){},
 	trigger : function(){},
@@ -282,9 +288,31 @@ jQuery.event = {
 	props : [],
 	fixHooks : {},
 	mouseHooks : {},
-	special : {},
+	// special中列举了一些事件类型
+	special : {
+		load : {},
+		focus : {},
+		blur : {},
+		click : {},
+		beforeunload : {}
+	},
 	simulate : function(){}
 }
+
+/*****jQuery event 5838行开始，事件绑定及解绑****/
+
+jQuery.fn.extend({
+	on: function( types, selector, data, fn ) {
+		return on( this, types, selector, data, fn );
+	},
+	one: function( types, selector, data, fn ) {
+		return on( this, types, selector, data, fn, 1 );
+	},
+	off: function( types, selector, fn ){},
+	trigger: function( type, data ){},
+	triggerHandler: function( type, data ){}
+
+})
 
 //判断使用removeEventListener还是dispatch
 jQuery.removeEvent = function(){}
@@ -294,14 +322,21 @@ jQuery.Event = function(){}
 jQuery.Event.prototype = {}
 
 /***公用函数部分***/
-
+// 获取节点数据
 function internalData(elem , name , data ,pvt){
 	//该函数仅内部使用，不对外公开
 }
 
-//判断当前节点是否允许在其上扩展数据
+// 判断当前节点是否允许在其上扩展数据
 var acceptData = function(elem){
 	//nodeType是1和9的节点才能扩展数据，其中applet，embed不允许扩展数据，只有指定classid的flash object才能扩展数据
+}
+
+function on( elem, types, selector, data, fn, one ) {
+	// code .....
+	return elem.each( function() {
+		jQuery.event.add( this, types, fn, data, selector );
+	} );
 }
 
 /***公用函数部分***/
