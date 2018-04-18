@@ -86,6 +86,8 @@ jQuery.fn = jQuery.prototype = {
 
 /********175行开始********/
 //定义扩展jQuery方法extend，extend也是一个实例方法，只不过是用静态方法指向了实例方法
+// jQuery.extend执行后将会把方法扩展到jQuery上，称为静态方法
+// jQuery.fn.extend执行后将会把方法扩展到jQuery.prototype上，也就是实例方法
 jQuery.extend = jQuery.fn.extend = function(){
 	// code....
 
