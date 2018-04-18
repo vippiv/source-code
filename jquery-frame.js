@@ -279,14 +279,26 @@ jQuery.event = {
 	//空对象
 	global : {},
 	// jquery事件绑定接口（on，one）都转发到这里
-	add : function(ele,types,handler,data,selector){},
+	// ele：元素
+	// types ：事件类型
+	// handler：处理函数
+	// data：额外附加的数据
+	// selector：子元素选择器
+	add : function( elem, types, handler, data, selector ){},
+	// 移除事件
 	remove : function(){},
+	// 触发事件
 	trigger : function(){},
 	dispatch : function(){},
 	handlers : function(){},
-	fix :  function(){},
+	// 把元素event对象上的其他属性复制到jQuery event对象上同时做一些兼容处理
+	// 经过这一步之后原生对象上有的属性，jQuery event对象上也有了
+	fix :  function( event ){},
 	props : [],
 	fixHooks : {},
+	// 键盘事件兼容
+	keyHooks : {}.
+	// 鼠标事件兼容
 	mouseHooks : {},
 	// special中列举了一些事件类型
 	special : {
@@ -302,6 +314,11 @@ jQuery.event = {
 /*****jQuery event 5838行开始，事件绑定及解绑****/
 
 jQuery.fn.extend({
+	// 对外暴露接口提供了四个参数，分别是：
+	// types：事件名
+	// selector ：选择器
+	// data：传递到函数的额外事件
+	// fn：回调函数
 	on: function( types, selector, data, fn ) {
 		return on( this, types, selector, data, fn );
 	},
@@ -317,8 +334,10 @@ jQuery.fn.extend({
 //判断使用removeEventListener还是dispatch
 jQuery.removeEvent = function(){}
 
+/**********5544行***********/
 jQuery.Event = function(){}
 
+/**********5584行***********/
 jQuery.Event.prototype = {}
 
 /***公用函数部分***/
@@ -332,6 +351,7 @@ var acceptData = function(elem){
 	//nodeType是1和9的节点才能扩展数据，其中applet，embed不允许扩展数据，只有指定classid的flash object才能扩展数据
 }
 
+/**********4790行***********/
 function on( elem, types, selector, data, fn, one ) {
 	// code .....
 	return elem.each( function() {

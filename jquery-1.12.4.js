@@ -4787,6 +4787,12 @@ function safeActiveElement() {
 	} catch ( err ) { }
 }
 
+// elem：元素
+// types：事件类型
+// selector：子元素选择器
+// data：附加的数据
+// fn：函数
+// one：如果采用one接口绑定事件，one等于1
 function on( elem, types, selector, data, fn, one ) {
 	var origFn, type;
 
@@ -4855,7 +4861,12 @@ function on( elem, types, selector, data, fn, one ) {
 jQuery.event = {
 
 	global: {},
-
+	// jquery事件绑定接口（on，one）都转发到这里
+	// elem：元素
+	// types ：事件类型
+	// handler：处理函数
+	// data：额外附加的数据
+	// selector：子元素选择器
 	add: function( elem, types, handler, data, selector ) {
 		var tmp, events, t, handleObjIn,
 			special, eventHandle, handleObj,
@@ -5323,13 +5334,15 @@ jQuery.event = {
 
 		return handlerQueue;
 	},
-
+	// 把元素event对象上的其他属性复制到jQuery event对象上同时做一些兼容处理
 	fix: function( event ) {
+		// 如果已经是jQuery Event对象则立即返回
 		if ( event[ jQuery.expando ] ) {
 			return event;
 		}
 
 		// Create a writable copy of the event object and normalize some properties
+		// 创建一个可以写的事件对象副本并且规范化一些属性
 		var i, prop, copy,
 			type = event.type,
 			originalEvent = event,
@@ -5371,16 +5384,19 @@ jQuery.event = {
 	},
 
 	// Includes some event props shared by KeyEvent and MouseEvent
+	// props是数组
 	props: ( "altKey bubbles cancelable ctrlKey currentTarget detail eventPhase " +
 		"metaKey relatedTarget shiftKey target timeStamp view which" ).split( " " ),
 
 	fixHooks: {},
-
+	// 键盘事件兼容
 	keyHooks: {
 		props: "char charCode key keyCode".split( " " ),
+		// event是jQuery事件对象，original是原生事件对象
 		filter: function( event, original ) {
 
 			// Add which for key events
+			// 给jQuery event添加一个whic属性，因为浏览器采用keycode和charcode有兼容性问题
 			if ( event.which == null ) {
 				event.which = original.charCode != null ? original.charCode : original.keyCode;
 			}
@@ -5388,16 +5404,18 @@ jQuery.event = {
 			return event;
 		}
 	},
-
+	// 鼠标事件兼容
 	mouseHooks: {
 		props: ( "button buttons clientX clientY fromElement offsetX offsetY " +
 			"pageX pageY screenX screenY toElement" ).split( " " ),
+		// event是jQuery事件对象，original是原生事件对象
 		filter: function( event, original ) {
 			var body, eventDoc, doc,
 				button = original.button,
 				fromElement = original.fromElement;
 
 			// Calculate pageX/Y if missing and clientX/Y available
+			// 处理pageX/Y还是clientX/Y的兼容性问题，统一放到pageX/Y上
 			if ( event.pageX == null && original.clientX != null ) {
 				eventDoc = event.target.ownerDocument || document;
 				doc = eventDoc.documentElement;
@@ -5412,6 +5430,7 @@ jQuery.event = {
 			}
 
 			// Add relatedTarget, if necessary
+			// 处理relatedTarget和formElement兼容性问题，统一放到relatedTarget上
 			if ( !event.relatedTarget && fromElement ) {
 				event.relatedTarget = fromElement === event.target ?
 					original.toElement :
@@ -5420,6 +5439,7 @@ jQuery.event = {
 
 			// Add which for click: 1 === left; 2 === middle; 3 === right
 			// Note: button is not normalized, so don't use it
+			// 处理鼠标左中右键的兼容性问题，统一放到which属性上
 			if ( !event.which && button !== undefined ) {
 				event.which = ( button & 1 ? 1 : ( button & 2 ? 3 : ( button & 4 ? 2 : 0 ) ) );
 			}
@@ -5541,20 +5561,27 @@ jQuery.removeEvent = document.removeEventListener ?
 		}
 	};
 
+// jQuery.Event可以这样调用
+// new $.Event( event ,"demo"); event是原生的事件对象
+// jQuery.Event可以包装原生的事件对象，将原生的事件对象里的部分属性存储起来，其中有originalEvent,type,isDefaultPrevented,type,timeStamp及一个随机数
 jQuery.Event = function( src, props ) {
 
 	// Allow instantiation without the 'new' keyword
+	// 允许无new关键词实例化
 	if ( !( this instanceof jQuery.Event ) ) {
 		return new jQuery.Event( src, props );
 	}
 
 	// Event object
+	// 事件对象
 	if ( src && src.type ) {
+		// originalEvent是原生事件对象的副本
 		this.originalEvent = src;
 		this.type = src.type;
 
 		// Events bubbling up the document may have been marked as prevented
 		// by a handler lower down the tree; reflect the correct value.
+		// 处理事件冒泡
 		this.isDefaultPrevented = src.defaultPrevented ||
 				src.defaultPrevented === undefined &&
 
@@ -5577,17 +5604,20 @@ jQuery.Event = function( src, props ) {
 	this.timeStamp = src && src.timeStamp || jQuery.now();
 
 	// Mark it as fixed
+	// 这是一个标志以后与可以判断这个对象是不是jQuery事件对象
 	this[ jQuery.expando ] = true;
 };
 
 // jQuery.Event is based on DOM3 Events as specified by the ECMAScript Language Binding
 // http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
+// jQuery.Event基于ECMAScript规定的DOM 3级事件
 jQuery.Event.prototype = {
 	constructor: jQuery.Event,
 	isDefaultPrevented: returnFalse,
 	isPropagationStopped: returnFalse,
 	isImmediatePropagationStopped: returnFalse,
 
+	// 包装阻止默认事件
 	preventDefault: function() {
 		var e = this.originalEvent;
 
@@ -5606,6 +5636,7 @@ jQuery.Event.prototype = {
 			e.returnValue = false;
 		}
 	},
+	// 包装阻止冒泡
 	stopPropagation: function() {
 		var e = this.originalEvent;
 
@@ -5624,6 +5655,9 @@ jQuery.Event.prototype = {
 		// Set the cancelBubble property of the original event to true
 		e.cancelBubble = true;
 	},
+	// stopPrapagation会阻止冒泡，但不会阻止自身事件的执行
+	// stopImmediatePropagation不仅仅会冒泡还会阻止自身事件的执行
+	// 例如：在同一个元素上绑定多个click事件，stopPrapagation会阻止事件冒泡到父元素上，stopImmediatePropagation不仅阻止冒泡到父元素上，stopImmediatePropagation之后的事件都会被阻止掉
 	stopImmediatePropagation: function() {
 		var e = this.originalEvent;
 
