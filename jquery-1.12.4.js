@@ -101,12 +101,14 @@ jQuery.fn = jQuery.prototype = {
 	// The default length of a jQuery object is 0
 	length: 0,
 
+	// 把jQuery对象转换成数组
 	toArray: function() {
 		return slice.call( this );
 	},
 
 	// Get the Nth element in the matched element set OR
 	// Get the whole matched element set as a clean array
+	// 获取指定的元素或者原生的元素数组
 	get: function( num ) {
 		return num != null ?
 
@@ -119,48 +121,60 @@ jQuery.fn = jQuery.prototype = {
 
 	// Take an array of elements and push it onto the stack
 	// (returning the new matched element set)
+	// 把元素推到堆栈上并返回新栈，新栈的内容就是push进去的内容
+	// https://blog.csdn.net/qiqingjin/article/details/50756763
 	pushStack: function( elems ) {
 
 		// Build a new jQuery matched element set
+		//  创建新的jQuery对象集
 		var ret = jQuery.merge( this.constructor(), elems );
 
 		// Add the old object onto the stack (as a reference)
+		// 原有的对象集通过prevObject连接
 		ret.prevObject = this;
 		ret.context = this.context;
 
 		// Return the newly-formed element set
+		// 返回新形式的元素集
 		return ret;
 	},
 
 	// Execute a callback for every element in the matched set.
+	// 遍历
 	each: function( callback ) {
 		return jQuery.each( this, callback );
 	},
 
+	// 对每个元素进行处理并返回新的对象集合
 	map: function( callback ) {
 		return this.pushStack( jQuery.map( this, function( elem, i ) {
 			return callback.call( elem, i, elem );
 		} ) );
 	},
 
+	// 分割jQuery对象集
 	slice: function() {
 		return this.pushStack( slice.apply( this, arguments ) );
 	},
 
+	// 返回第一个对象
 	first: function() {
 		return this.eq( 0 );
 	},
 
+	// 返回最后一个对象
 	last: function() {
 		return this.eq( -1 );
 	},
 
+	// 返回指定位置的jQuery对象
 	eq: function( i ) {
 		var len = this.length,
 			j = +i + ( i < 0 ? len : 0 );
 		return this.pushStack( j >= 0 && j < len ? [ this[ j ] ] : [] );
 	},
 
+	// 返回链式调用的上一个元素
 	end: function() {
 		return this.prevObject || this.constructor();
 	},
@@ -172,11 +186,19 @@ jQuery.fn = jQuery.prototype = {
 	splice: deletedIds.splice
 };
 
+// 为jQuery对象和init对象的prototype扩展方法
+// 同时具有独立的扩展普通对象的功能
 jQuery.extend = jQuery.fn.extend = function() {
+/*
+　　*target被扩展的对象，要么是用户提供的对象要么是jQuery，jquery.fn
+　　*length参数的数量
+　　*deep是否深度操作
+*/
 	var src, copyIsArray, copy, name, options, clone,
-		// 第一个参数是false的情况下，给target赋值空对象
+		// 初始化target对象
 		target = arguments[ 0 ] || {},
 		i = 1,
+		// 参数的数量
 		length = arguments.length,
 		deep = false;
 
@@ -191,24 +213,31 @@ jQuery.extend = jQuery.fn.extend = function() {
 	}
 
 	// Handle case when target is a string or something (possible in deep copy)
+	// targe既不是对象也不是函数，则把target设置为空对象
 	if ( typeof target !== "object" && !jQuery.isFunction( target ) ) {
 		target = {};
 	}
 
 	// extend jQuery itself if only one argument is passed
+	// 如果只有一个参数，则把jQuery或jquery.prototype赋值给target，即扩展到jQuery对象上
 	if ( i === length ) {
 		target = this;
 		i--;
 	}
 
+	// 开始遍历需要被扩展到target上的参数
 	for ( ; i < length; i++ ) {
 
 		// Only deal with non-null/undefined values
+		// 只处理非null/undefined值
 		if ( ( options = arguments[ i ] ) != null ) {
 
 			// Extend the base object
+			// 遍历第i个对象的所有可遍历的属性
 			for ( name in options ) {
+				// 根据被扩展对象的键获得目标对象相应值，并赋值给src
 				src = target[ name ];
+				//  获取扩展对象的值
 				copy = options[ name ];
 
 				// Prevent never-ending loop
@@ -217,6 +246,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 				}
 
 				// Recurse if we're merging plain objects or arrays
+				// 递归合并纯对象或数组
 				if ( deep && copy && ( jQuery.isPlainObject( copy ) ||
 					( copyIsArray = jQuery.isArray( copy ) ) ) ) {
 
@@ -246,6 +276,8 @@ jQuery.extend = jQuery.fn.extend = function() {
 jQuery.extend( {
 
 	// Unique for each copy of jQuery on the page
+	// version是版本号，如“1.12.4”
+	// expando是一个随机数，以版本号开头，version中的“.”将被替换掉
 	expando: "jQuery" + ( version + Math.random() ).replace( /\D/g, "" ),
 
 	// Assume jQuery is ready without the ready module
@@ -291,6 +323,9 @@ jQuery.extend( {
 		return true;
 	},
 
+	// 判断指定参数是否是一个纯粹的对象，
+	// 所谓"纯粹的对象"，就是该对象是通过"{}"或"new Object"创建的，http://www.365mini.com/page/jquery_isplainobject.htm
+	// https://blog.csdn.net/esir82/article/details/52287537
 	isPlainObject: function( obj ) {
 		var key;
 
@@ -307,6 +342,10 @@ jQuery.extend( {
 		try {
 
 			// Not own constructor property must be Object
+			// 没有constructor属性的不是对象，返回false
+			// constructor是自身属性的，返回false
+			// isPrototypeOf是obj.constructor.prototype自身属性的，返回false
+			// isPrototypeOf用于判断一个对象是否在另一个对象原型链上
 			if ( obj.constructor &&
 				!hasOwn.call( obj, "constructor" ) &&
 				!hasOwn.call( obj.constructor.prototype, "isPrototypeOf" ) ) {
@@ -318,8 +357,10 @@ jQuery.extend( {
 			return false;
 		}
 
-		// Support: IE<9
+		// Support: IE<9，以下代码主要用于兼容IE9以下版本
 		// Handle iteration over inherited properties before own properties.
+		// 优先迭代继承属性
+		// support是jQuery开头定义的一个空对象，ownFirst是什么暂时不知道
 		if ( !support.ownFirst ) {
 			for ( key in obj ) {
 				return hasOwn.call( obj, key );
@@ -328,11 +369,13 @@ jQuery.extend( {
 
 		// Own properties are enumerated firstly, so to speed up,
 		// if last one is own, then all properties are own.
+		// 自有属性优先枚举，如果最后一个属性是自有的那么所有属性都是自有的
 		for ( key in obj ) {}
 
 		return key === undefined || hasOwn.call( obj, key );
 	},
 
+	// 检测对象类型
 	type: function( obj ) {
 		if ( obj == null ) {
 			return obj + "";
@@ -344,6 +387,7 @@ jQuery.extend( {
 
 	// Workarounds based on findings by Jim Driscoll
 	// http://weblogs.java.net/blog/driscoll/archive/2009/09/08/eval-javascript-global-context
+	// 该函数用于全局性地执行一段JavaScript代码，https://www.cnblogs.com/yy-hh/p/4673975.html
 	globalEval: function( data ) {
 		if ( data && jQuery.trim( data ) ) {
 
@@ -358,6 +402,8 @@ jQuery.extend( {
 
 	// Convert dashed to camelCase; used by the css and data modules
 	// Microsoft forgot to hump their vendor prefix (#9572)
+	// 函数的功能就是将形如background-color转化为驼峰表示法：backgroundColor
+	// 通常用在css和data modules
 	camelCase: function( string ) {
 		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 	},
@@ -366,6 +412,7 @@ jQuery.extend( {
 		return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
 	},
 
+	// 遍历
 	each: function( obj, callback ) {
 		var length, i = 0;
 
@@ -388,6 +435,8 @@ jQuery.extend( {
 	},
 
 	// Support: Android<4.1, IE<9
+	// 替换空格，仅供Android<4.1, IE<9使用
+	// rtrim是正则表达式
 	trim: function( text ) {
 		return text == null ?
 			"" :
@@ -435,6 +484,9 @@ jQuery.extend( {
 		return -1;
 	},
 
+	// 把第二个参数合并到第一个参数里去
+	// 第一个参数必须是数组
+	// 第二个参数可以不是数组(只要有length属性就可以了)，甚至对象的键名可以不是数字，但这种情况将导致插入的全部是undefined!
 	merge: function( first, second ) {
 		var len = +second.length,
 			j = 0,
@@ -457,6 +509,7 @@ jQuery.extend( {
 		return first;
 	},
 
+	// 数组中查找符合经过callback筛选的元素，返回新数组
 	grep: function( elems, callback, invert ) {
 		var callbackInverse,
 			matches = [],
@@ -477,6 +530,7 @@ jQuery.extend( {
 	},
 
 	// arg is for internal usage only
+	// 对数组中每个元素进行处理并返回新数组
 	map: function( elems, callback, arg ) {
 		var length, value,
 			i = 0,
@@ -513,6 +567,7 @@ jQuery.extend( {
 
 	// Bind a function to a context, optionally partially applying any
 	// arguments.
+	// 创建一个指向特定上下文的函数并给这个函数一个唯一的id，方便后面追踪
 	proxy: function( fn, context ) {
 		var args, proxy, tmp;
 
@@ -3834,6 +3889,13 @@ function isEmptyDataObject( obj ) {
 	return true;
 }
 
+/**
+** 把需要存储的数据缓存到jQuery全局cache中，并通过唯一的id进行标识，以后就通过这个ID查找
+** @param  elem与数据关联的DOM元素
+** @param  name需要设置或读取的数据名
+** @param  data需要设置的数据值，可以是任意类型的数据
+** @param  pvt表示设置的是内部数据还是自定义数据，true的话是内部数据，false则是自定义数据
+**/
 function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 	//判断当前elem能否接受扩展数据
 	if ( !acceptData( elem ) ) {
@@ -3857,7 +3919,11 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 
 		// Only defining an ID for JS objects if its cache already exists allows
 		// the code to shortcut on the same path as a DOM node with no cache
-
+		// 尝试关联id,如果是DOM元素对象的话,关联id是 elem[ jQuery.expando ];否则的话,elem[ internalKey ] && internalKey;
+		// jQuery的data对象并不是简单的把数据附加在DOM上，而是建立了一个数据cache
+		// 然后给DOM上附加的唯一标识，通过这个标识在数据cache中查找缓存的数据，极大的减轻了DOM
+		// 只要调用过jQuery data方法的对象，在其DOM上都会有一个jQuery+"随机数"的属性
+		// id就是jQuery+"随机数"属性的值
 		id = isNode ? elem[ internalKey ] : elem[ internalKey ] && internalKey;
 
 	// Avoid doing any more work than we need to when trying to get data on an
@@ -3869,9 +3935,10 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 	}
 
 	if ( !id ) {
-
+		// 如果没有ID则生成一个
 		// Only DOM nodes need a new unique ID for each element since their data
 		// ends up in the global cache
+		// 只有DOM节点需要新的唯一的id，因为他们最终都会存储到全局cache中
 		if ( isNode ) {
 			id = elem[ internalKey ] = deletedIds.pop() || jQuery.guid++;
 		} else {
@@ -3880,7 +3947,7 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 	}
 
 	if ( !cache[ id ] ) {
-
+		// 初始化数据缓存对象
 		// Avoid exposing jQuery metadata on plain JS objects when the object
 		// is serialized using JSON.stringify
 		cache[ id ] = isNode ? {} : { toJSON: jQuery.noop };
@@ -3888,6 +3955,7 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 
 	// An object can be passed to jQuery.data instead of a key/value pair; this gets
 	// shallow copied over onto the existing cache
+	// 如果name是object或者function的话则把name缓存到自身上
 	if ( typeof name === "object" || typeof name === "function" ) {
 		if ( pvt ) {
 			cache[ id ] = jQuery.extend( cache[ id ], name );
@@ -4024,7 +4092,9 @@ function internalRemoveData( elem, name, pvt ) {
 	}
 }
 
+// 解读：https://www.cnblogs.com/tugenhua0707/p/5507250.html
 jQuery.extend( {
+	// 用于存储缓存
 	cache: {},
 
 	// The following elements (space-suffixed to avoid Object.prototype collisions)
@@ -4037,6 +4107,7 @@ jQuery.extend( {
 		"object ": "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
 	},
 
+	// 判断一个DOM元素或者javascript对象是否有与之关联的数据，如果没有的话,则返回false;否则的话,返回true.
 	hasData: function( elem ) {
 		elem = elem.nodeType ? jQuery.cache[ elem[ jQuery.expando ] ] : elem[ jQuery.expando ];
 		return !!elem && !isEmptyDataObject( elem );
@@ -4861,25 +4932,29 @@ function on( elem, types, selector, data, fn, one ) {
 jQuery.event = {
 
 	global: {},
-	// jquery事件绑定接口（on，one）都转发到这里
-	// elem：元素
-	// types ：事件类型
-	// handler：处理函数
-	// data：额外附加的数据
-	// selector：子元素选择器
+	/*
+	 * jquery事件绑定接口（on，one）都转发到这里
+	 * elem：元素
+	 * types ：事件类型
+	 * handler：处理函数
+	 * data：额外附加的数据
+	 * selector：子元素选择器
+	*/
 	add: function( elem, types, handler, data, selector ) {
 		var tmp, events, t, handleObjIn,
 			special, eventHandle, handleObj,
 			handlers, type, namespaces, origType,
+			// elemData是缓存系统中以elem为属性的对象，是一个空对象
 			elemData = jQuery._data( elem );
 
 		// Don't attach events to noData or text/comment nodes (but allow plain objects)
-		// 不允许给无数据或文本节点添加事件
+		// 不允许给无法附加数据或文本/注释节点添加事件（IE下访问文本节点会抛错，因为事件源不能为文本节点）
 		if ( !elemData ) {
 			return;
 		}
 
 		// Caller can pass in an object of custom data in lieu of the handler
+		// 如果传进来的事件处理函数是一个json对象{handler:function(){处理函数},selector:执行上下文}
 		if ( handler.handler ) {
 			handleObjIn = handler;
 			handler = handleObjIn.handler;
@@ -4887,13 +4962,14 @@ jQuery.event = {
 		}
 
 		// Make sure that the handler has a unique ID, used to find/remove it later
-		// 确保handler有唯一的id，通常用于后期查找/删除这个handler，没有就添加一个
+		// 确保事件处理函数handler有唯一的id，通常用于后期查找/删除这个handler，没有就添加一个
 		if ( !handler.guid ) {
 			handler.guid = jQuery.guid++;
 		}
 
 		// Init the element's event structure and main handler, if this is the first
-		// 初始化元素的事件结构和主体hanlder，elemData有events，handle，elemData是元素上的数据
+		// 初始化events和hanlder
+		// 如果此元素elem之前没有绑定过事件处理函数，它在缓存系统中以元素elem为属性的对象的events属性将是undefined
 		if ( !( events = elemData.events ) ) {
 			events = elemData.events = {};
 		}
@@ -4902,6 +4978,7 @@ jQuery.event = {
 
 				// Discard the second event of a jQuery.event.trigger() and
 				// when an event is called after a page has unloaded
+				// 当页面被卸载后就不再调用jQuery.event.trigger() 
 				return typeof jQuery !== "undefined" &&
 					( !e || jQuery.event.triggered !== e.type ) ?
 					jQuery.event.dispatch.apply( eventHandle.elem, arguments ) :
@@ -4910,11 +4987,12 @@ jQuery.event = {
 
 			// Add elem as a property of the handle fn to prevent a memory leak
 			// with IE non-native events
+			// 把elem添加为handle函数的属性主要是防止在IE中出现内存泄漏
 			eventHandle.elem = elem;
 		}
 
 		// Handle multiple events separated by a space
-		// 处理由空格分离的多个事件,type是一个数组
+		// 处理由空格组成的多个事件名,types是一个数组
 		types = ( types || "" ).match( rnotwhite ) || [ "" ];
 		// t代表事件个数
 		t = types.length;

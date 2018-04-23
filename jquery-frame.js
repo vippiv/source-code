@@ -85,9 +85,7 @@ jQuery.fn = jQuery.prototype = {
 }
 
 /********175行开始********/
-//定义扩展jQuery方法extend，extend也是一个实例方法，只不过是用静态方法指向了实例方法
-// jQuery.extend执行后将会把方法扩展到jQuery上，称为静态方法
-// jQuery.fn.extend执行后将会把方法扩展到jQuery.prototype上，也就是实例方法
+// 为jQuery对象和init对象的prototype扩展方法
 jQuery.extend = jQuery.fn.extend = function(){
 	// code....
 
@@ -95,7 +93,7 @@ jQuery.extend = jQuery.fn.extend = function(){
 	return target;
 }
 
-/********244行开始*****/
+/********244行开始，扩展了一系列功能函数*****/
 jQuery.extend({
 	//expando是内部的一个随机数
 	expando: "jQuery" + ( version + Math.random() ).replace( /\D/g, "" ),
@@ -123,7 +121,7 @@ jQuery.extend({
 
 	isEmptyObject : function(obj){},
 
-	//判断指定参数是否是一个纯粹的对象，所谓"纯粹的对象"，就是该对象是通过"{}"或"new Object"创建的，http://www.365mini.com/page/jquery_isplainobject.htm
+	// 判断指定参数是否是一个纯粹的对象，所谓"纯粹的对象"，就是该对象是通过"{}"或"new Object"创建的，http://www.365mini.com/page/jquery_isplainobject.htm
 	isPlainObject : function(obj){},
 
 	//输出对象类型的字符串，用于判断是哪种类型的数据
@@ -173,6 +171,7 @@ jQuery.extend({
 });
 
 /********4018行开始*****/
+// https://www.cnblogs.com/tugenhua0707/p/5507250.html
 jQuery.extend({
 	cache : {},
 	noData : {
@@ -280,12 +279,14 @@ jQuery.extend({
 jQuery.event = {
 	//空对象
 	global : {},
-	// jquery事件绑定接口（on，one）都转发到这里
-	// ele：元素
-	// types ：事件类型
-	// handler：处理函数
-	// data：额外附加的数据
-	// selector：子元素选择器
+	/*
+	* jquery事件绑定接口（on，one）都转发到这里
+	* ele：元素
+	* types ：事件类型
+	* handler：处理函数
+	* data：额外附加的数据
+	* selector：子元素选择器
+	*/
 	add : function( elem, types, handler, data, selector ){},
 	// 移除事件
 	remove : function(){},
@@ -316,11 +317,13 @@ jQuery.event = {
 /*****jQuery event 5838行开始，事件绑定及解绑****/
 
 jQuery.fn.extend({
-	// 对外暴露接口提供了四个参数，分别是：
-	// types：事件名
-	// selector ：选择器
-	// data：传递到函数的额外事件
-	// fn：回调函数
+	/***
+	* 对外暴露接口提供了四个参数，分别是：
+	* types：事件名
+	* selector ：选择器
+	* data：传递到函数的额外事件
+	* fn：回调函数
+	***/
 	on: function( types, selector, data, fn ) {
 		return on( this, types, selector, data, fn );
 	},
