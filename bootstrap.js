@@ -68,10 +68,11 @@ if (typeof jQuery === 'undefined') {
   }
 
   $(function () {
+    // 常量：判断当前浏览器支持哪种transitionend
     $.support.transition = transitionEnd()
     // 如果不支持transitionend直接返回
     if (!$.support.transition) return
-
+    // 自定义事件，bindType，delegateType是触发类型，handle是回调函数
     $.event.special.bsTransitionEnd = {
       bindType: $.support.transition.end,
       delegateType: $.support.transition.end,
@@ -97,33 +98,42 @@ if (typeof jQuery === 'undefined') {
 
   // ALERT CLASS DEFINITION
   // ======================
-
+  // dismiss是触发标识，有此标识的元素即可触发相应的时间
   var dismiss = '[data-dismiss="alert"]'
+  // Alert构造函数，触发对象是拥有dismiss属性的元素，采用事件委托的方式绑定事件
   var Alert   = function (el) {
     $(el).on('click', dismiss, this.close)
   }
 
+  // 常量 作为构造函数的属性绑定，js找那个一切揭示对象
   Alert.VERSION = '3.3.7'
 
   Alert.TRANSITION_DURATION = 150
 
+  // 定义原型方法
   Alert.prototype.close = function (e) {
+    // $this指向Alert实例
     var $this    = $(this)
+    // 获取ALert实例的data-target属性，返回的是一个选择器字符串（data-target指向一个元素）
     var selector = $this.attr('data-target')
-
+    // 判断selector是否存在
     if (!selector) {
+      // 不存在则尝试去获取href属性
       selector = $this.attr('href')
+      // 处理selector字符串
       selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
     }
-
+    // 给父元素赋值，这要取决于selector是什么
     var $parent = $(selector === '#' ? [] : selector)
 
     if (e) e.preventDefault()
 
+    // 如果父元素不存在，则就近找class=“alert”的元素
     if (!$parent.length) {
       $parent = $this.closest('.alert')
     }
 
+    // 触发父元素上的自定义事件，close.bs.alert是对外暴露的监听事件名称
     $parent.trigger(e = $.Event('close.bs.alert'))
 
     if (e.isDefaultPrevented()) return
@@ -132,9 +142,12 @@ if (typeof jQuery === 'undefined') {
 
     function removeElement() {
       // detach from parent, fire event then clean up data
+      // detach() 方法移除被选元素，包括所有文本和子节点。
+      // 这个方法会保留 jQuery 对象中的匹配的元素，因而可以在将来再使用这些匹配的元素。
+      // detach() 会保留所有绑定的事件、附加的数据，这一点与 remove() 不同。
       $parent.detach().trigger('closed.bs.alert').remove()
     }
-
+    // 根据transitionend支持情况以及class指定情况触发transtionend事件
     $.support.transition && $parent.hasClass('fade') ?
       $parent
         .one('bsTransitionEnd', removeElement)
@@ -145,7 +158,7 @@ if (typeof jQuery === 'undefined') {
 
   // ALERT PLUGIN DEFINITION
   // =======================
-
+  // 定义插件
   function Plugin(option) {
     return this.each(function () {
       var $this = $(this)
@@ -156,6 +169,8 @@ if (typeof jQuery === 'undefined') {
     })
   }
 
+  // 防冲突处理 ，把之前定义的方法赋值给一个内部变量
+  // 然后把自己定义的方法赋值给插件名称
   var old = $.fn.alert
 
   $.fn.alert             = Plugin
@@ -164,7 +179,7 @@ if (typeof jQuery === 'undefined') {
 
   // ALERT NO CONFLICT
   // =================
-
+  // 执行防冲突函数，把插件名称让渡给以前的函数，返回自定义的插件
   $.fn.alert.noConflict = function () {
     $.fn.alert = old
     return this
@@ -173,7 +188,7 @@ if (typeof jQuery === 'undefined') {
 
   // ALERT DATA-API
   // ==============
-
+  // 给type设定命名空间，bootstrap有很多事件都是委托在document上，以免触发时产生混乱 
   $(document).on('click.bs.alert.data-api', dismiss, Alert.prototype.close)
 
 }(jQuery);

@@ -314,6 +314,13 @@ jQuery.event = {
 	simulate : function(){}
 }
 
+/*****jQuery.Event 5645行开始****/
+
+//封装原生事件
+jQuery.Event = function( src, props ) {
+
+}
+
 /*****jQuery event 5838行开始，事件绑定及解绑****/
 
 jQuery.fn.extend({
