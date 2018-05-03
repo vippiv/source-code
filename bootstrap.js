@@ -158,13 +158,16 @@ if (typeof jQuery === 'undefined') {
 
   // ALERT PLUGIN DEFINITION
   // =======================
-  // 定义插件
+  // 定义插件，用构造函数的方式写插件可以保持功能的独立，构造函数也能单独使用，插件函数就只赋值插件实现部分
+  // 直接把函数写在 $.fn.***上则不够灵活
   function Plugin(option) {
     return this.each(function () {
       var $this = $(this)
       var data  = $this.data('bs.alert')
-
+      // 将实例化对象赋值到jquery data对象上，防止多次new构造函数
       if (!data) $this.data('bs.alert', (data = new Alert(this)))
+      // 经过这一步data就成为一个 有属性有方法的对象
+      // 同时data对象也被保存在jquery缓存系统中，名称就是bs.alert
       if (typeof option == 'string') data[option].call($this)
     })
   }
