@@ -352,6 +352,15 @@ jQuery.Event = function(){}
 /**********5584行***********/
 jQuery.Event.prototype = {}
 
+
+
+/**********3254行 回调函数统一管理***********/
+jQuery.Callbacks = function(options){
+	
+}
+
+
+
 /***公用函数部分***/
 // 获取节点数据
 function internalData(elem , name , data ,pvt){

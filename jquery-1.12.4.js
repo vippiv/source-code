@@ -3216,6 +3216,7 @@ var rnotwhite = ( /\S+/g );
 
 
 // Convert String-formatted options into Object-formatted ones
+// 把字符串格式的options转换成对象格式
 function createOptions( options ) {
 	var object = {};
 	jQuery.each( options.match( rnotwhite ) || [], function( _, flag ) {
@@ -3226,56 +3227,72 @@ function createOptions( options ) {
 
 /*
  * Create a callback list using the following parameters:
- *
+ * 使用以下参数创建回调函数列表
+ * option选项可以是由空格分隔的字符串也可以是对象，这些option决定回调函数列表的行为
  *	options: an optional list of space-separated options that will change how
  *			the callback list behaves or a more traditional option object
- *
+ * // 默认的函数列表表现的像事件回调列表并且能被多次触发
  * By default a callback list will act like an event callback list and can be
  * "fired" multiple times.
  *
  * Possible options:
- *
+ * 可能的选项
  *	once:			will ensure the callback list can only be fired once (like a Deferred)
+ *					once将保证回调函数列表仅仅只被触发一次 
  *
  *	memory:			will keep track of previous values and will call any callback added
  *					after the list has been fired right away with the latest "memorized"
  *					values (like a Deferred)
+ *					在回调列表被触发之后保持追踪上最后一个值并且能立即用保存的值调用任何回到
  *
  *	unique:			will ensure a callback can only be added once (no duplicate in the list)
+ *					保证回调仅仅只被添加一次到列表中
  *
  *	stopOnFalse:	interrupt callings when a callback returns false
+ *					当回调返回false时立即返回
  *
  */
 jQuery.Callbacks = function( options ) {
 
 	// Convert options from String-formatted to Object-formatted if needed
+	// 在有必要的情况下把options从字符串格式转换成对象格式
 	// (we check in cache first)
+	// 我们首先会检测缓存
+	// options将是一个对象，如果初始options是字符串的话则调用createOptions函数将其转换成字符串，否则调用jQuery.extend()方法合并成一个对象
 	options = typeof options === "string" ?
 		createOptions( options ) :
 		jQuery.extend( {}, options );
 
 	var // Flag to know if list is currently firing
+		// 回调是否处于触发状态
 		firing,
 
 		// Last fire value for non-forgettable lists
+		// 最后一次触发值
 		memory,
 
 		// Flag to know if list was already fired
+		// 触发完成标识
 		fired,
 
 		// Flag to prevent firing
+		// 锁，阻止触发标识
 		locked,
 
 		// Actual callback list
+		// 真实的回调列表
 		list = [],
 
 		// Queue of execution data for repeatable lists
+		// 可重复列表的执行数据序列
 		queue = [],
 
 		// Index of currently firing callback (modified by add/remove as needed)
+		// 当前触发回调函数索引，添加/删除回调的情况下可被修改
 		firingIndex = -1,
 
 		// Fire callbacks
+		// 触发回调函数
 		fire = function() {
 
 			// Enforce single-firing
@@ -3284,15 +3301,19 @@ jQuery.Callbacks = function( options ) {
 			// Execute callbacks for all pending executions,
 			// respecting firingIndex overrides and runtime changes
 			fired = firing = true;
+			// 当queue.length的长度见效为0时停止循环，因为for循环内部存在一个queue.shift()函数
 			for ( ; queue.length; firingIndex = -1 ) {
+				// shift() 方法用于把数组的第一个元素从其中删除,并返回第一个元素的值
 				memory = queue.shift();
 				while ( ++firingIndex < list.length ) {
 
 					// Run callback and check for early termination
+					// 运行回调并且 检查回调终止条件
 					if ( list[ firingIndex ].apply( memory[ 0 ], memory[ 1 ] ) === false &&
 						options.stopOnFalse ) {
 
 						// Jump to end and forget the data so .add doesn't re-fire
+						// 符合条件则直接跳转到结尾忽略剩下的部分，add方法添加的回调不再触发
 						firingIndex = list.length;
 						memory = false;
 					}
@@ -3307,9 +3328,11 @@ jQuery.Callbacks = function( options ) {
 			firing = false;
 
 			// Clean up if we're done firing for good
+			// 回调触发 完成则清空 状态
 			if ( locked ) {
 
 				// Keep an empty list if we have data for future add calls
+				// 保持一个空数字
 				if ( memory ) {
 					list = [];
 
@@ -3321,27 +3344,35 @@ jQuery.Callbacks = function( options ) {
 		},
 
 		// Actual Callbacks object
+		// 真实的回调函数
 		self = {
 
 			// Add a callback or a collection of callbacks to the list
+			// 添加回调函数到列表中
 			add: function() {
 				if ( list ) {
 
 					// If we have memory from a past run, we should fire after adding
+					// 如果保存过memory就触发后添加的回调
 					if ( memory && !firing ) {
+						// 设定firingIndex的起始值为list数组长度减一
 						firingIndex = list.length - 1;
+						// 把回调push进数组
 						queue.push( memory );
 					}
-
+					// args可以是一个回调数组
 					( function add( args ) {
 						jQuery.each( args, function( _, arg ) {
+							// arg是函数则直接push进list数组
 							if ( jQuery.isFunction( arg ) ) {
 								if ( !options.unique || !self.has( arg ) ) {
 									list.push( arg );
 								}
+								// 不是函数则检查 是不是对象，符合条件的对象就进行递归检查
 							} else if ( arg && arg.length && jQuery.type( arg ) !== "string" ) {
 
 								// Inspect recursively
+								// 递归检查arg
 								add( arg );
 							}
 						} );
@@ -3355,6 +3386,7 @@ jQuery.Callbacks = function( options ) {
 			},
 
 			// Remove a callback from the list
+			// 从list中移除回调，参数可以是一个回调数组
 			remove: function() {
 				jQuery.each( arguments, function( _, arg ) {
 					var index;
@@ -3371,7 +3403,9 @@ jQuery.Callbacks = function( options ) {
 			},
 
 			// Check if a given callback is in the list.
+			// 检查给定的参数是否在list中
 			// If no argument is given, return whether or not list has callbacks attached.
+			//  如果为给定参数则返回list中是否有回调
 			has: function( fn ) {
 				return fn ?
 					jQuery.inArray( fn, list ) > -1 :
@@ -3379,6 +3413,7 @@ jQuery.Callbacks = function( options ) {
 			},
 
 			// Remove all callbacks from the list
+			// 清空回调数组
 			empty: function() {
 				if ( list ) {
 					list = [];
@@ -3387,6 +3422,7 @@ jQuery.Callbacks = function( options ) {
 			},
 
 			// Disable .fire and .add
+			// 禁用fire和add方法
 			// Abort any current/pending executions
 			// Clear all callbacks and values
 			disable: function() {
@@ -3413,6 +3449,7 @@ jQuery.Callbacks = function( options ) {
 			},
 
 			// Call all callbacks with the given context and arguments
+			// 以给定的上下文和参数调用所有回调函数
 			fireWith: function( context, args ) {
 				if ( !locked ) {
 					args = args || [];
@@ -3426,12 +3463,14 @@ jQuery.Callbacks = function( options ) {
 			},
 
 			// Call all the callbacks with the given arguments
+			// 以给定的参数调用回调，其实走的还是firewidth函数
 			fire: function() {
 				self.fireWith( this, arguments );
 				return this;
 			},
 
 			// To know if the callbacks have already been called at least once
+			// 检测回调是否被执行了至少一次
 			fired: function() {
 				return !!fired;
 			}
