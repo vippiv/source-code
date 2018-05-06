@@ -372,6 +372,20 @@ var acceptData = function(elem){
 	//nodeType是1和9的节点才能扩展数据，其中applet，embed不允许扩展数据，只有指定classid的flash object才能扩展数据
 }
 
+/**********4508行***********/
+/**
+* @params elems 需要操作的元素
+* @params fn 函数
+* @params key 设置的键名
+* @params value 设置的键值
+* @params chainable 
+* @params emptyGet
+* @params raw
+*/
+var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
+	// code
+}
+
 /**********4790行***********/
 function on( elem, types, selector, data, fn, one ) {
 	// code .....
@@ -381,3 +395,24 @@ function on( elem, types, selector, data, fn, one ) {
 }
 
 /***公用函数部分***/
+
+/*************8561行 获取/设置/移除属性**************/ 
+jQuery.fn.extend({
+	attr : function(name,value){
+		// code
+	},
+	removeAttr : function(name){
+		// code
+	}
+});
+jQuery.extend({
+	attr : function(){
+		// code
+	},
+	attrHook:function(){
+		// code
+	},
+	removeAttr : function(){
+		// code
+	}
+});

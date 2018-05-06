@@ -4496,23 +4496,38 @@ function adjustCSS( elem, prop, valueParts, tween ) {
 
 
 // Multifunctional method to get and set values of a collection
+// 多功能方法用于设置/获取集合的值
 // The value/s can optionally be executed if it's a function
+// 值如果是函数可供执行
+/**
+* @params elems 需要操作的元素
+* @params fn 函数
+* @params key 设置的键名
+* @params value 设置的键值
+* @params chainable 为true则是设置值，为false则是获取值
+* @params emptyGet
+* @params raw，value是函数的标识，是函数则设置raw为true，否则为false
+*/
 var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 	var i = 0,
 		length = elems.length,
 		bulk = key == null;
 
 	// Sets many values
+	// key是object的情况
 	if ( jQuery.type( key ) === "object" ) {
+		// 如果是object则递归调用
 		chainable = true;
 		for ( i in key ) {
 			access( elems, fn, i, key[ i ], true, emptyGet, raw );
 		}
 
 	// Sets one value
+	// key是普通值的情况（number，string）
+	// 存在value参数
 	} else if ( value !== undefined ) {
 		chainable = true;
-
+		// value不是函数的情况
 		if ( !jQuery.isFunction( value ) ) {
 			raw = true;
 		}
@@ -4544,10 +4559,12 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 		}
 	}
 
+	// 存在value参数的情况下 ，chainable就是true，也就是set功能
+	// 否则就是get功能
 	return chainable ?
 		elems :
 
-		// Gets
+		// Gets get指定key的值
 		bulk ?
 			fn.call( elems ) :
 			length ? fn( elems[ 0 ], key ) : emptyGet;
@@ -8558,8 +8575,10 @@ var nodeHook, boolHook,
 	getSetAttribute = support.getSetAttribute,
 	getSetInput = support.input;
 
+/*************获取/设置/移除属性**************/ 
 jQuery.fn.extend( {
 	attr: function( name, value ) {
+		//最后一个参数判断attr方法是否传了参数
 		return access( this, jQuery.attr, name, value, arguments.length > 1 );
 	},
 
@@ -8576,11 +8595,13 @@ jQuery.extend( {
 			nType = elem.nodeType;
 
 		// Don't get/set attributes on text, comment and attribute nodes
+		// 不允许在文本，注释以及属性 节点上设置attribute
 		if ( nType === 3 || nType === 8 || nType === 2 ) {
 			return;
 		}
 
 		// Fallback to prop when attributes are not supported
+		// 如果当前浏览器不支持getAttribute方法的时候回退到prop方法上
 		if ( typeof elem.getAttribute === "undefined" ) {
 			return jQuery.prop( elem, name, value );
 		}
@@ -8590,10 +8611,12 @@ jQuery.extend( {
 		if ( nType !== 1 || !jQuery.isXMLDoc( elem ) ) {
 			name = name.toLowerCase();
 			hooks = jQuery.attrHooks[ name ] ||
-				( jQuery.expr.match.bool.test( name ) ? boolHook : nodeHook );
+				( jQuery.expr.match.bool.test( name ) ? boolHook : nodeHook );+
 		}
 
+		// 设置属性
 		if ( value !== undefined ) {
+			// value值为null的话 实际功能就是移除属性的值
 			if ( value === null ) {
 				jQuery.removeAttr( elem, name );
 				return;
