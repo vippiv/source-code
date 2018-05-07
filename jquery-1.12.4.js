@@ -4500,6 +4500,7 @@ function adjustCSS( elem, prop, valueParts, tween ) {
 // The value/s can optionally be executed if it's a function
 // 值如果是函数可供执行
 /**
+* 该函数的主要作用是对参数进行处理，并不坐实质性工作，实质性工作由fn参数完成，本质是一次封装
 * @params elems 需要操作的元素
 * @params fn 函数
 * @params key 设置的键名
@@ -8610,13 +8611,15 @@ jQuery.extend( {
 		// Grab necessary hook if one is defined
 		if ( nType !== 1 || !jQuery.isXMLDoc( elem ) ) {
 			name = name.toLowerCase();
+			// boolHook，nodeHook都是对象
+			// hooks的结果是根据当前浏览器选择合适的设置/获取属性的方法
 			hooks = jQuery.attrHooks[ name ] ||
 				( jQuery.expr.match.bool.test( name ) ? boolHook : nodeHook );+
 		}
 
-		// 设置属性
+		// value值为null的话 实际功能就是移除属性的值
 		if ( value !== undefined ) {
-			// value值为null的话 实际功能就是移除属性的值
+
 			if ( value === null ) {
 				jQuery.removeAttr( elem, name );
 				return;
@@ -8640,7 +8643,7 @@ jQuery.extend( {
 		// Non-existent attributes return null, we normalize to undefined
 		return ret == null ? undefined : ret;
 	},
-
+	// 该步骤调用成功返回参数value
 	attrHooks: {
 		type: {
 			set: function( elem, value ) {
@@ -8673,6 +8676,7 @@ jQuery.extend( {
 				if ( jQuery.expr.match.bool.test( name ) ) {
 
 					// Set corresponding property to false
+					// getSetInput = support.input，getSetAttribute = support.getSetAttribute，ruseDefault是正则
 					if ( getSetInput && getSetAttribute || !ruseDefault.test( name ) ) {
 						elem[ propName ] = false;
 
@@ -8695,12 +8699,15 @@ jQuery.extend( {
 } );
 
 // Hooks for boolean attributes
+// boolean属性hook(主要处理各浏览器兼容性问题)，调用set属性，返回需要设置的名称
 boolHook = {
 	set: function( elem, value, name ) {
 		if ( value === false ) {
 
 			// Remove boolean attributes when set to false
+			// value为false的情况下就执行移除属性值
 			jQuery.removeAttr( elem, name );
+			// getSetInput = support.input，getSetAttribute = support.getSetAttribute，ruseDefault是正则
 		} else if ( getSetInput && getSetAttribute || !ruseDefault.test( name ) ) {
 
 			// IE<8 needs the *property* name
@@ -8763,6 +8770,7 @@ if ( !getSetInput || !getSetAttribute ) {
 }
 
 // IE6/7 do not support getting/setting some attributes with get/setAttribute
+// 处理IE6/7不支持通过get/set方法处理属性的情况
 if ( !getSetAttribute ) {
 
 	// Use this for any attribute in IE6/7
