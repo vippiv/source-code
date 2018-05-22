@@ -60,6 +60,7 @@ var toString = class2type.toString;
 
 var hasOwn = class2type.hasOwnProperty;
 
+// 全局support对象，对象的属性赋值分布在整个jQuery文件中
 var support = {};
 
 
@@ -407,7 +408,7 @@ jQuery.extend( {
 	camelCase: function( string ) {
 		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 	},
-
+	// 检测elem的nodeName和name的nodeName是否相等
 	nodeName: function( elem, name ) {
 		return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
 	},
@@ -601,6 +602,7 @@ jQuery.extend( {
 
 	// jQuery.support is not used in Core but other projects attach their
 	// properties to it so it needs to exist.
+	// jQuery.support在jQuery核心中并不适用，但其他项目可能用到，因此有必要存在
 	support: support
 } );
 
@@ -8604,11 +8606,13 @@ jQuery.extend( {
 		// Fallback to prop when attributes are not supported
 		// 如果当前浏览器不支持getAttribute方法的时候回退到prop方法上
 		if ( typeof elem.getAttribute === "undefined" ) {
+			// jQuery.prop是getAttribute功能的兼容版
 			return jQuery.prop( elem, name, value );
 		}
 
 		// All attributes are lowercase
 		// Grab necessary hook if one is defined
+		// 将attribute统一转换成小写，同时处理建荣信，返回hooks值，后面用到
 		if ( nType !== 1 || !jQuery.isXMLDoc( elem ) ) {
 			name = name.toLowerCase();
 			// boolHook，nodeHook都是对象
@@ -8621,10 +8625,11 @@ jQuery.extend( {
 		if ( value !== undefined ) {
 
 			if ( value === null ) {
+				// jQuery.removeAttr是一个兼容方法，用于移除某个属性
 				jQuery.removeAttr( elem, name );
 				return;
 			}
-
+			// 存在hooks就调用set方法
 			if ( hooks && "set" in hooks &&
 				( ret = hooks.set( elem, value, name ) ) !== undefined ) {
 				return ret;
@@ -8633,7 +8638,7 @@ jQuery.extend( {
 			elem.setAttribute( name, value + "" );
 			return value;
 		}
-
+		// 存在hooks则调用hooks的get方法
 		if ( hooks && "get" in hooks && ( ret = hooks.get( elem, name ) ) !== null ) {
 			return ret;
 		}
@@ -8641,6 +8646,7 @@ jQuery.extend( {
 		ret = jQuery.find.attr( elem, name );
 
 		// Non-existent attributes return null, we normalize to undefined
+		// 若属性不存在则返回undefined，否则返回ret
 		return ret == null ? undefined : ret;
 	},
 	// 该步骤调用成功返回参数value
@@ -8759,6 +8765,7 @@ if ( !getSetInput || !getSetAttribute ) {
 			if ( jQuery.nodeName( elem, "input" ) ) {
 
 				// Does not return so that setAttribute is also used
+				// 不作返回，以便setAttribute依然可用
 				elem.defaultValue = value;
 			} else {
 
@@ -8775,6 +8782,7 @@ if ( !getSetAttribute ) {
 
 	// Use this for any attribute in IE6/7
 	// This fixes almost every IE6/7 issue
+	// 处理IE6/7
 	nodeHook = {
 		set: function( elem, value, name ) {
 
@@ -8896,6 +8904,7 @@ jQuery.extend( {
 		}
 
 		if ( value !== undefined ) {
+			// hooks上有set方法就用set方法设置值，否则采用DOM污染法直接设置
 			if ( hooks && "set" in hooks &&
 				( ret = hooks.set( elem, value, name ) ) !== undefined ) {
 				return ret;
@@ -8903,7 +8912,7 @@ jQuery.extend( {
 
 			return ( elem[ name ] = value );
 		}
-
+		// hooks上存在get方法则用get方法获取值，否则直接获取
 		if ( hooks && "get" in hooks && ( ret = hooks.get( elem, name ) ) !== null ) {
 			return ret;
 		}
